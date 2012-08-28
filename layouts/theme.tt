@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+[%- include 'meta.tt' %]
+[%- outer_bg_name = settings.outer_bg_name || 'outer_bg1.jpg' | asset_uri %]
+[%- wrapper_bg_name = settings.wrapper_bg_name || 'wrapper_bg1.png' | asset_uri unless settings.wrapper_bg_uri %]
+[% 'style.css' | asset_uri | stylesheet_tag %]
+[% 'jquery/fancybox/2/jquery.fancybox.css' | global_asset_uri | stylesheet_tag %]
+[% 'jquery/markitup/markdown/style.css' | global_asset_uri | stylesheet_tag %]
+[% 'jquery/jquery.min.js' | global_asset_uri | script_tag %]
+[% 'jquery/fancybox/2/jquery.fancybox.pack.js' | global_asset_uri | script_tag %]
+[% 'jquery/jquery.bxslider.min.js' | global_asset_uri | script_tag %]
+[% content_for_header %]
+</head>
+<body class="outer" style="background: url('[% outer_bg_name %]') [% settings.body_bg_repeat || "repeat fixed" %] center top;">
+  <script type="text/javascript" charset="utf-8">
+    $j = jQuery.noConflict();
+    // fancybox
+    $j(document).ready(function() {
+      $j(".fancybox a").fancybox();
+    });
+  </script>
+<div id="wrapper" style="background: url('[% settings.wrapper_bg_uri || wrapper_bg_name %]') no-repeat center top;">
+  <div class="header_wrapper">
+    <div class="logo">
+      <div class="logo_text">
+        [%- if settings.logo_image_uri %]
+        [% settings.logo_image_uri | image_tag | link_to ('/') %]
+        [%- else %]
+        [% '<span class="site_name">' _ shop.name _ '</span><span class="site_slogan">' _ shop.domain _ '</span>' | link_to ('/') %]
+        [%- end %]
+      </div>
+    </div>
+    [%- if  !settings.ecommerce_enabled %]      
+    <div class="cart_status">
+      <div><a href="[% uri_for ('/cart') %]"><strong>[% cart.total_quantity %]</strong> [% cart.total_quantity | pluralize ('item', 'items') | loc %]<br />[% 'in shopping cart' | loc %]</a></div>
+    </div>
+    [%- end %]    
+    <div class="clear"></div>
+
+    <div class="mainnav_container">
+      <div class="mainnav">
+        <ul>
+          [%- foreach link in linklists.main_menu.links %]
+          <li class="[% 'sep' unless loop.last || loop.count == 6 %]">[% '<span>' _ link.name _ '</span>' | link_to (link.uri, link.name, link.target) %]</li>
+          [% last if loop.count == 6 %]
+          [%- end %]
+        </ul>
+        <div class="clear"></div>
+      </div>
+      <div class="clear"></div>
+    </div>
+  </div>
+
+  <div class="body_wrapper">
+    <div id="sidebar_container">
+      [%- if !settings.form_login %]
+      <div class="customer">
+        [%- if customer.is_logged_in %]
+        <h4>[% 'My Account' | loc %]</h4>
+        <div class="login_area">
+          <div class="customer_greeting">[% 'Hello' | loc %], [% customer.name | html %]</div>
+          <ul class="customernav">
+            [%- foreach link in customer.links %]
+            <li>[% link.name | html | link_to (link.uri) %]</li>
+            [%- end %]
+          </ul>
+        </div>
+        [%- else %]
+        <h4>[% 'Sign In' | loc %]</h4>
+        <form action="[% uri_for('/customer/login') %]" method="post" class="login_area">
+          <dl>
+            <dt>[% 'Email' | loc %]:</dt>
+            <dd><input type="text" class="text small_curved" name="login" /></dd>
+          </dl>
+          <dl>
+            <dt>[% 'Password' | loc %]:</dt>
+            <dd><input type="password" class="text small_curved" name="password" /></dd>
+          </dl>
+          <dl class="buttons">
+            <dt>&nbsp;</dt>
+            <dd>
+              <input type="submit" class="button submit small_curved" name="submit" value="[% 'Sign In' | loc %]" /><br />
+              [% 'forgot password' | loc | link_to uri_for('/customer/recover') %]?
+            </dd>
+          </dl>
+        </form>
+        [%- end %]
+      </div>
+      [%- end %]
+      <div class="sidenav">
+        <h3 class="topic3">[% 'Navigation' | loc %]</h3>
+        <!-- collections -->
+        
+            [%- if linklists.${settings.linklist_sidebar1}.links.size  %]
+            <div class="collections">
+              <h4 class="topic4" title="[%- linklists.${settings.linklist_sidebar1}.name %]"><span>[%- linklists.${settings.linklist_sidebar1}.name %]</span></h4>
+              <ul>
+                [%- foreach link in linklists.${settings.linklist_sidebar1}.links %]
+                <li >[% link.name | html | link_to (link.uri, link.name) %]</li>
+                [%- end %]
+              </ul>
+            </div>
+            [%- end %]
+            [%- if linklists.${settings.linklist_sidebar2}.links.size %]
+            <div class="collections">
+              <h4 class="topic4" title="[%- linklists.${settings.linklist_sidebar2}.name %]"><span>[%- linklists.${settings.linklist_sidebar2}.name %]</span></h4>
+              <ul>
+                [%- foreach link in linklists.${settings.linklist_sidebar2}.links %]
+                <li >[% link.name | html | link_to (link.uri, link.name) %]</li>
+                [%- end %]
+              </ul>
+            </div>
+            [%- end %]
+            [%- if linklists.${settings.linklist_sidebar3}.links.size %]
+            <div class="collections">
+              <h4 class="topic4" title="[%- linklists.${settings.linklist_sidebar3}.name %]"><span>[%- linklists.${settings.linklist_sidebar3}.name %]</span></h4>
+              <ul>
+                [%- foreach link in linklists.${settings.linklist_sidebar3}.links %]
+                <li >[% link.name | html | link_to (link.uri, link.name) %]</li>
+                [%- end %]
+              </ul>
+            </div>
+            [%- end %]
+            
+          [%- if !settings.collection_enabled %]            
+          <div class="collections">
+            <h4 class="topic4" title="[% 'Browse by Collection' | loc %]"><span>Collection</span></h4>
+              [%- if linklists.collections.links %]
+              <ul>
+                [%- foreach link in linklists.collections.links %]
+                <li>[% link.name | html | link_to (link.uri, link.name) %]</li>
+                [%- end %]
+              </ul>
+              [%- else %]
+              <p>คุณต้องเพิ่มคอลเลคชันสินค้าเข้าลิงค์ลิสต์แฮนเดิล "collections"</p>
+              [%- end %]
+          </div>
+          [%- end %]          
+        <!-- /collections -->
+
+        <!-- brands -->
+        [%- if settings.brand_style && collection.handle && collection.handle != 'all' %]
+        <div class="brands nav-left">
+          <h4 class="topic4 " title="[% 'Browse by Brand' | loc %]"><span>[% 'Browse by Brand' | loc %]</span></h4>
+            [%- if !settings.brand_style || settings.brand_style == 1 %]
+            <form action="[% req.url %]" method="get">
+              <select name="brand" class="selector" style="width: 90%"  onchange='location.href=this.form.brand.options[this.form.brand.selectedIndex].value;'>
+                <option value="[% collection.uri %]">- [% 'Any brand' | loc %] -</option>
+                [%- foreach vendor in collection.vendors %]
+                  <option value="[% uri_for ('/collection', collection.slug, {vendor = vendor}) %]" [% 'selected="selected"' if current_vendor == vendor %]>[% vendor | html %]</option>
+                [%- end %]
+              </select>
+            </form>
+            [%- else %]
+            <ul >
+              [%- foreach vendor in collection.vendors %]
+                <li [% 'class="active"' if current_vendor == vendor %]>[% vendor | html | link_to uri_for ('/collection', collection.slug, {vendor = vendor}) %]</li>
+              [%- end %]
+            </ul>
+            [%- end %]
+        </div>
+        [%- end %]
+        
+          [%- if settings.type_style && collection.handle && collection.handle != 'all' %]
+          <div class="type nav-left">
+            <h4 class="topic4" title="[% 'Browse by Type' | loc %]"><span>[% 'Browse by Type' | loc %]</span></h4>
+              [%- if !settings.type_style || settings.type_style == 1 %]
+              <form action="[% req.url %]" method="get">
+                <select name="type" class="selector" style="width: 90%" onchange='location.href=this.form.type.options[this.form.type.selectedIndex].value;'>
+                  <option value="[% collection.uri %]">- [% 'Any type' | loc %] -</option>
+                  [%- foreach type in collection.types %]
+                    <option value="[% uri_for ('/collection', collection.slug, {type = type}) %]" [% 'selected="selected"' if current_type == type %]>[% type | html %]</option>
+                  [%- end %]
+                </select>
+              </form>
+              [%- else %]
+              <ul>
+                [%- foreach type in collection.types %]
+                  <li [% 'class="active"' if current_type == type %]>[% type | html | link_to uri_for ('/collection', collection.slug, {type = type}) %]</li>
+                [%- end %]
+              </ul>
+              [%- end %]
+          </div>  
+          [%- end %]        
+        <!-- /brands -->
+        <div class="sidenav_bg_footer"></div>
+      </div>
+
+      <!-- side widgets -->
+      <div class="sidewidget">
+            [%- if settings.stats_enabled %]
+            <div class="statistics_container">
+               <div class="statistics"> 
+              <dl>
+                <dt>[% 'Since' | loc %]</dt>
+                <dd>[% shop.created_at | date ('%F') %]</dd>
+                <dt>[% 'Visitors' | loc %]</dt>
+                <dd>[% shop.visitor_count || 0 | commify %]</dd>
+                <dt>[% 'Products' | loc %]</dt>
+                <dd>[% shop.product_count || 0 | commify %]</dd>
+              </dl>
+          <div class="clear"></div>
+          </div> 
+        </div>
+        [%- end %]         
+      </div>
+      <!-- /side widgets -->
+
+      <!-- side banners -->
+        <div class="sidebanner">
+          [%- if !linklists.sidebar %]
+          <p>คุณต้องเพิ่มลิงค์ลิสต์และระบุแฮนเดิลว่า "sidebar"</p>
+          [%- elsif !linklists.sidebar.links.size %]
+          <p>คุณต้องเพิ่มลิงค์และและอัพโหลดรูปภาพกว้าง 230px</p>
+          [%- else %]
+          <ul>
+            [%- foreach link in linklists.sidebar.links %]
+            <li>[% link.featured_image.src | image_uri | image_tag | link_to (link.uri, link.name, link.target) %]</li>
+            [%- end %]
+          </ul>
+          [%- end %]
+        </div>
+      <!-- /side banners -->
+        
+      [%- if settings.facebook_uri && settings.like_box_enabled %]
+      <div class="facebook_like_box">
+        <iframe src="http://www.facebook.com/plugins/likebox.php?href=[% settings.facebook_uri | uri %]&amp;width=200&amp;colorscheme=light&amp;show_faces=[% settings.like_box_show_faces ? 'true' : 'false' %]&amp;stream=[% settings.like_box_show_stream ? 'true' : 'false' %]&amp;header=[% settings.like_box_show_header ? 'true' : 'false' %]&amp;height=[% settings.like_box_height ? settings.like_box_height : '556' %]" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:230px; height:[% settings.like_box_height ? settings.like_box_height : '556' %]px;" allowTransparency="true"></iframe>
+      </div>
+      [%- end %]        
+
+    </div>
+
+    <div id="content_container">
+
+      <!--  highlight with cycle -->
+      <div class="highlight_banner">
+          <ul id="highlight_banner">
+          [%- if linklists.${settings.linklist_highlight}.links.size || linklists.highlight.links.size %]
+          [%- links = linklists.${settings.linklist_highlight}.links || linklists.highlight.links %]
+          [%- foreach link in links %]
+          [% next if !link.featured_image %]                   
+            <li>
+              <a href="[% link.uri %]" title="[% link.name | html %]">
+                <span style="background-image: url('[% link.featured_image.src | image_uri %]')"></span>
+              </a>
+            </li>
+            [%- end %]
+            [%- else %]                  
+            <li><span style="background-image: url('[% 'highlight_banner_sample.png' | asset_uri %]')"></span></li>
+            <li><span style="background-image: url('[% 'highlight_banner_sample.png' | asset_uri %]')"></span></li>
+            [%- end %]
+          </ul>
+          <script type="text/javascript" charset="utf-8">
+          $j(function(){
+            var slider = $j('#highlight_banner').bxSlider({
+              controls: false,
+              displaySlideQty: 1,
+              moveSlideQty: 1,
+              pager: true,
+              auto: true,
+              pause: 6000
+            });
+          });
+          </script>
+      </div>      
+      <!--  /highlight with cycle -->
+
+      <!--  banners-->
+      <ul class="banners">
+        [%- if customer.is_logged_in %]
+        <li>[% 'banner_account.png' | asset_uri | image_tag | link_to ('/customer') %]</li>
+        [%- else %]
+        <li>[% 'banner_signup.png' | asset_uri | image_tag | link_to ('/customer/signup') %]</li>
+        [%- end %]
+        <li class="c">[% 'banner_contact.png' | asset_uri | image_tag | link_to ('/page/contact') %]</li>
+        <li class="searchbar">
+          <form action="[% uri_for('/collection/all') %]" name="search_product" method="get" class="search_area">
+            <dl>
+              <dt><input type="text" class="text" name="q" value="[% param.q %]" /></dt>
+              <dt><input type="submit" class="button" value="" /></dt>
+            </dl>
+          </form>
+          <div class="clear"></div>
+        </li>
+      </ul>
+      <div class="clear"></div>
+      <!--  /banners-->
+
+      <div class="content">
+      [% content %]
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer_wrapper">
+    <div id="footer">
+      <div class="footernav">
+        [%- foreach link in linklists.footer.links %]
+        [%- link.name = link.name | html %]
+        [% link.name | link_to (link.uri, link.name, link.target) %]
+        [% '|' unless loop.last %]
+        [%- end %]
+      </div>
+      <div class="copyright">
+        &copy; [% now | date ('%Y') %] [% shop.name | html %]. [% powered_by_link %].
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+  [%- content_for_footer %]
+</div>
+</body>
+</html>
